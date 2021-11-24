@@ -14,7 +14,8 @@ menu=(
 "9) instalovat driver tiskárny Samsung M2020"
 "10) instalovat KolourPaint"
 "11) instalovat net-tools"
-"12) instalovat TeamViewer")
+"12) instalovat TeamViewer"
+"13) instalovat ulozto-downloader")
 menu+=([100]="100) ukončit skript")
 
 highest_menu_number=$(echo $((${#menu[@]} - 2))) # count of array minus 0 and 100
@@ -148,6 +149,27 @@ do_switch_case() {
 			rm ~/Stažené/teamviewer_amd64.deb
 			echo "Instalační soubor teamviewer_amd64.deb odstraněn."	
 		;;
+		
+		13)
+			cd ~/Stažené
+			echo "Instaluji balíky potřebné pro běh aplikace ulozto-downloader: python3-pip, tor, python3-tflite-runtime"
+			sleep $sleep_time
+			
+			sudo apt install python3-pip -y
+			sudo apt install tor -y
+			
+			echo "deb https://packages.cloud.google.com/apt coral-edgetpu-stable main" | sudo tee /etc/apt/sources.list.d/coral-edgetpu.list
+			curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+			sudo apt-get update
+			sudo apt-get install python3-tflite-runtime -y
+			
+			echo "Instaluji ulozto-downloader"
+			sleep $sleep_time
+			sudo pip3 install --upgrade ulozto-downloader
+			
+			printf "${orange}Příklad příkazu pro stahování: ulozto-downloader --auto-captcha --parts 15 \"https://ulozto.cz/file/TKvQVDFBEhtL/debian-9-6-0-amd64-netinst-iso\"${no_color}"
+			
+		;;
 
 		100)
 			exit	
@@ -187,5 +209,4 @@ do
 done
 
 echo "Skript doběhl do konce. Esc..."
-
 
