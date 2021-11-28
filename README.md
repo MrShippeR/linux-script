@@ -1,7 +1,7 @@
 # linux-script
 Repozitář se skripty, které automatizují některé procesy či zbytečně složité instalace. Návody platí pro *Ubuntu* a jeho odvozeniny (Mint, Zorin, Kubuntu aj.).
 
-#Jak používat skripty:
+##Jak používat skripty:
 1) Stáhnete soubor kamkoliv do PC
   - Detailněji - na stránkách githubu rozkliknete soubor, dáte v pravo na textem souboru RAW (surový tvar souboru) a na stránce kliknete pravým tlačítkem myši a dáte uložit jako. Třeba do složky ~/Stažené/
 
