@@ -166,9 +166,17 @@ do_switch_case() {
 			echo "Instaluji ulozto-downloader"
 			sleep $sleep_time
 			sudo pip3 install --upgrade ulozto-downloader
+
+			echo "Instaluji zjednodušení pro zadávání příkazu do Terminálu"
+			sleep $sleep_time
+			cd "/home/$USER/.local/bin/"
+			wget https://raw.githubusercontent.com/MrShippeR/linux-script/main/ulozto.sh
+			mv ulozto.sh ulozto
+			chmod +x ulozto
 			
-			printf "${orange}Příklad příkazu pro stahování: ulozto-downloader --auto-captcha --parts 15 \"https://ulozto.cz/file/TKvQVDFBEhtL/debian-9-6-0-amd64-netinst-iso\"${no_color}"
-			
+			# printf "${orange}Příklad příkazu pro stahování: ulozto-downloader --auto-captcha --parts 15 \"https://ulozto.cz/file/TKvQVDFBEhtL/debian-9-6-0-amd64-netinst-iso\"${no_color}"
+			echo
+			printf "${orange}Příklad příkazu pro stahování: ulozto \"https://ulozto.cz/file/TKvQVDFBEhtL/debian-9-6-0-amd64-netinst-iso\"${no_color}"
 		;;
 
 		100)
@@ -209,4 +217,3 @@ do
 done
 
 echo "Skript doběhl do konce. Esc..."
-
