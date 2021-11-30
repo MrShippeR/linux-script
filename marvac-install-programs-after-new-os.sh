@@ -174,9 +174,9 @@ do_switch_case() {
 			mv ulozto.sh ulozto
 			chmod +x ulozto
 			
-			# printf "${orange}Příklad příkazu pro stahování: ulozto-downloader --auto-captcha --parts 15 \"https://ulozto.cz/file/TKvQVDFBEhtL/debian-9-6-0-amd64-netinst-iso\"${no_color}"
+			# printf "${orange}Příklad příkazu pro stahování: ulozto-downloader --auto-captcha --parts 15 'https://ulozto.cz/file/TKvQVDFBEhtL/debian-9-6-0-amd64-netinst-iso'${no_color}"
 			echo
-			printf "${orange}Příklad příkazu pro stahování: ulozto \"https://ulozto.cz/file/TKvQVDFBEhtL/debian-9-6-0-amd64-netinst-iso\"${no_color}"
+			printf "${orange}Příklad příkazu pro stahování: ulozto 'https://ulozto.cz/file/TKvQVDFBEhtL/debian-9-6-0-amd64-netinst-iso'${no_color}"
 		;;
 
 		100)
