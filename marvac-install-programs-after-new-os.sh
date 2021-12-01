@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# version 1.5 from 21-12-01
+# autor marek@vach.cz
+
 # initial variables #
 menu=(
 "0) přeji si udělat všechny následující kroky"
@@ -15,7 +18,8 @@ menu=(
 "10) instalovat KolourPaint"
 "11) instalovat net-tools"
 "12) instalovat TeamViewer"
-"13) instalovat ulozto-downloader")
+"13) instalovat ulozto-downloader"
+"14) instalovat yourube-dl")
 menu+=([100]="100) ukončit skript")
 
 highest_menu_number=$(echo $((${#menu[@]} - 2))) # count of array minus 0 and 100
@@ -177,6 +181,23 @@ do_switch_case() {
 			# printf "${orange}Příklad příkazu pro stahování: ulozto-downloader --auto-captcha --parts 15 'https://ulozto.cz/file/TKvQVDFBEhtL/debian-9-6-0-amd64-netinst-iso'${no_color}"
 			echo
 			printf "${orange}Příklad příkazu pro stahování: ulozto 'https://ulozto.cz/file/TKvQVDFBEhtL/debian-9-6-0-amd64-netinst-iso'${no_color}"
+		;;
+
+		14)
+			echo "Instaluji program pro stahování videí youtube-dl..."
+			sleep $sleep_time
+			# https://github.com/ytdl-org/youtube-dl
+			sudo wget https://yt-dl.org/downloads/latest/youtube-dl -O /usr/local/bin/youtube-dl
+			sudo chmod a+rx /usr/local/bin/youtube-dl
+
+			echo
+			echo "Instaluji závislosti - Python..."
+			sleep $sleep_time
+			sudo apt install python3 -y
+			sudo apt install python-is-python3 -y
+
+			printf "${orange}Příkaz zadávat ve tvaru: youtube-dl [OPTIONS] URL [URL...]${no_color}"
+
 		;;
 
 		100)
