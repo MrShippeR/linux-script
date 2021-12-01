@@ -166,6 +166,7 @@ do_switch_case() {
 			curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
 			sudo apt-get update
 			sudo apt-get install python3-tflite-runtime -y
+			sudo apt-get install python3-tk -y
 			
 			echo "Instaluji ulozto-downloader"
 			sleep $sleep_time
@@ -173,10 +174,11 @@ do_switch_case() {
 
 			echo "Instaluji zjednodušení pro zadávání příkazu do Terminálu"
 			sleep $sleep_time
-			cd "/home/$USER/.local/bin/"
-			wget https://raw.githubusercontent.com/MrShippeR/linux-script/main/ulozto.sh
-			mv ulozto.sh ulozto
-			chmod +x ulozto
+			cd "/usr/local/bin/"
+			sudo wget https://raw.githubusercontent.com/MrShippeR/linux-script/main/ulozto.sh
+			sudo mv ulozto.sh ulozto
+			sudo chmod a+rx ulozto
+			sudo chown root:root ulozto
 			
 			# printf "${orange}Příklad příkazu pro stahování: ulozto-downloader --auto-captcha --parts 15 'https://ulozto.cz/file/TKvQVDFBEhtL/debian-9-6-0-amd64-netinst-iso'${no_color}"
 			echo
