@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # version 1.5 from 21-12-01
+# version 1.6 from 22-01-28 - adding function to set input comma separated
 # autor marek@vach.cz
 
 # initial variables #
@@ -215,28 +216,49 @@ do_switch_case() {
 }
 ######
 
-# Main function - user unput and program logic #
+# Main function - user input and program logic #
 
 echo ""
-echo "Skript pro rychlou instalaci 2021 Marek@Vach.cz v0.1"
+echo "Skript pro rychlou instalaci 2021 Marek@Vach.cz v1.6"
 echo ""
 printf '%s\n' "${menu[@]}"
 echo ""
 
-read -p "Vyberte akci, kterou chcete od programu vykonat: " choice;
-echo "Byla zvolena úloha ${menu[$choice]}"
-echo "###################################"
+read -p "Vícenásobné zadání oddělujte čárkami. Vyberte akci, kterou chcete od programu vykonat: " choice;
 
-if [ $choice -eq 0 ]
+# check input for comma separated values and then explode (or just create) array from values
+if [[ $choice == *","* ]]
 then
-	do_all_tasks=true
+  choices=($(echo $choice | tr "," "\n"))
+  echo "Byly zvoleny úlohy:"
+else
+  choices=($choice)
+  echo "Byla zvolena úloha:"
 fi
 
-do_switch_case # 1st execution because while doesn't do first execution
-
-while [ $do_all_tasks = "true" ] && [ $choice -lt $highest_menu_number ]
+# foreach function to print choices on script start execution
+for choice in "${choices[@]}"
 do
-	do_switch_case # loop execution 
+   echo "${menu[$choice]}"
 done
 
+echo "###################################"
+sleep $sleep_time
+
+# foreach function to execute tasks
+for choice in "${choices[@]}"
+do
+   if [ $choice -eq 0 ]
+   then
+	# do_all_tasks=true
+	# {START..END..INCREMENT}
+	for ((choice = 1; choice <= $highest_menu_number; choice++)); 
+	do
+  	   do_switch_case
+	done
+	break # allow just one execution of do all tasks
+   else
+        do_switch_case
+   fi
+done
 echo "Skript doběhl do konce. Esc..."
