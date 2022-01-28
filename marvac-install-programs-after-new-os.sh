@@ -10,7 +10,7 @@ menu=(
 "1) instalovat gnome-tweaks pro nastavení klikání pravým tlačítkem touchpadu"
 "2) sjednotit zápis času pro skoky mezi Windows a Linux"
 "3) instalovat prohlížeč Brave"
-"4) instalovat Nextcloud client"
+"4) instalovat Seafile client"
 "5) instalovat Screen"
 "6) instalovat Discord"
 "7) instalovat Signal"
@@ -24,7 +24,6 @@ menu=(
 menu+=([100]="100) ukončit skript")
 
 highest_menu_number=$(echo $((${#menu[@]} - 2))) # count of array minus 0 and 100
-do_all_tasks=false
 blue='\033[0;34m'
 green='\033[0;32m'
 orange='\033[0;33m'
@@ -34,34 +33,34 @@ sleep_time=0.8
 
 # define functions and install instructions #
 do_switch_case() {
+	printf "${orange}Aktualizace repozitářů $choice:${no_color}"
+	sudo snap refresh
+	sudo apt-get update
+	
 	printf "${orange}Započínám vykonávání úkoly $choice:${no_color}"
 	sleep $sleep_time
 	case $choice in
 
 		1)
-			sudo apt-get install gnome-tweaks
- 			# gnome-tweaks &  # & starts separate process
+			sudo apt-get install gnome-tweaks -y
+			echo "Otevírám gnome-tweaks v samostatném procesu."
+ 		 	gnome-tweaks &  # & starts separate process
 		;;
 
 		2)		
-			timedatectl set-local-rtc 1 --adjust-system-clock
+			sudo timedatectl set-local-rtc 1 --adjust-system-clock
 		;;
 
 		3)
-			sudo apt install apt-transport-https curl
-			sudo curl -fsSLo /usr/share/keyrings/brave-browser-archive-keyring.gpg https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg
-			sudo echo "deb [signed-by=/usr/share/keyrings/brave-browser-archive-keyring.gpg arch=amd64] https://brave-browser-apt-release.s3.brave.com/ stable main"|sudo tee /etc/apt/sources.list.d/brave-browser-release.list
-			sudo apt update
-			sudo apt install brave-browser
+			sudo snap install brave
 		;;
 
-		4)
-			sudo apt-get install nextcloud-desktop
-			
+		4)	
+			sudo apt-get install seafile-gui -y	
 		;;
 
 		5)
-			sudo apt-get install screen
+			sudo apt-get install screen -y
 		;;
 
 		6)
@@ -76,27 +75,27 @@ do_switch_case() {
 			echo "Instalace potřebných podprogramů a přidání repozitáře..."
 			sleep $sleep_time
 			
-			sudo apt-get update
 			sudo apt-get install \
-    				apt-transport-https \
     				ca-certificates \
     				curl \
     				gnupg \
     				lsb-release
 			curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+			
 			echo \
-  			"deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
-  			$(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+                              "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+                               $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
 			echo "Instalace docker engine..."
 			sleep $sleep_time
 			sudo apt-get update
-			sudo apt-get install docker-ce docker-ce-cli containerd.io
+			sudo apt-get install docker-ce docker-ce-cli containerd.io -y
 			docker version
 
 			echo "Instalace docker-compose..."
 			sleep $sleep_time
-			sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+			# update version time to time, current 2.2.3 https://github.com/docker/compose/releases
+			sudo curl -L https://github.com/docker/compose/releases/download/2.2.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
 			sudo chmod +x /usr/local/bin/docker-compose
 			docker-compose --version
 
@@ -112,23 +111,23 @@ do_switch_case() {
 
 		9)			
 			file_name=uld_V1.00.39_01.17.tar.gz
-			cd ~/Stažené			
+			cd ~/Stažené	
 			
 			if test -f "$file_name"; then
 				echo ""				
 				echo "Soubor již stažený je, přeskakuji krok..."
 			else
-				wget https://ftp.hp.com/pub/softlib/software13/printers/SS/SL-C4010ND/$file_name
+				wget https://ftp.ext.hp.com/pub/softlib/software13/printers/SS/SL-C4010ND/$file_name
 			fi
 
 			if test -d "uld"; then
 				echo "Extrahovaná složka již existuje, přeskakuji extrakci..."
 			else
-				tar xvf samsung-M2020-driver-linux.tar.gz
+				tar xvf $file_name
 			fi
 
 			cd uld/
-			printf "${red}V EULA je 10 bodů, u bodu 9 zpomalit, pak Y, jinak skript spadne! ${no_color}"
+			printf "${red}Zmáčknout Enter, Q, pro přeskočení skrolování. ${no_color}"
 			sleep 3
 			echo ""
 			sudo ./install.sh
@@ -139,7 +138,7 @@ do_switch_case() {
 		;;
 
 		11)
-			sudo apt install net-tools
+			sudo apt-get install net-tools -y
 			echo ""
 			echo "Otestování nástroje PING:"
 			ping -c 2 google.com
@@ -150,9 +149,7 @@ do_switch_case() {
 		12)
 			cd ~/Stažené
 			wget https://download.teamviewer.com/download/linux/teamviewer_amd64.deb
-			sudo dpkg -i teamviewer_amd64.deb	
-			rm ~/Stažené/teamviewer_amd64.deb
-			echo "Instalační soubor teamviewer_amd64.deb odstraněn."	
+			sudo dpkg -i teamviewer_amd64.deb		
 		;;
 		
 		13)
@@ -250,8 +247,6 @@ for choice in "${choices[@]}"
 do
    if [ $choice -eq 0 ]
    then
-	# do_all_tasks=true
-	# {START..END..INCREMENT}
 	for ((choice = 1; choice <= $highest_menu_number; choice++)); 
 	do
   	   do_switch_case
