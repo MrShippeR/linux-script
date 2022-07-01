@@ -19,9 +19,20 @@ sleep_time=2
 
 url=$1
 home_path="/home/$USER/Stažené/"
+CURRENT_PATH=$(pwd)
 
-printf "${orange}Započítávám stahování souboru z ulož.to do složky $home_path ${no_color}"
+echo "Do jakého adresáře se má soubor stáhnout?"
+echo "[0] ${CURRENT_PATH}"
+echo "[1] ${home_path}"
+read -p "0/1: " choice;
+
+if [[ $choice == 1 ]]
+then
+   path=$home_path
+else
+   path=$CURRENT_PATH 
+fi
+
+printf "${orange}Započítávám stahování souboru z ulož.to do složky $path ${no_color}"
 sleep $sleep_time
-echo
-
-ulozto-downloader --parts 15 --output $home_path --auto-captcha $url
+ulozto-downloader --parts 15 --output $path --auto-captcha $url 
