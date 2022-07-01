@@ -22,8 +22,8 @@ home_path="/home/$USER/Stažené/"
 CURRENT_PATH=$(pwd)
 
 echo "Do jakého adresáře se má soubor stáhnout?"
-echo "[0] ${CURRENT_PATH}"
-echo "[1] ${home_path}"
+echo "[0] současný adresář: ${CURRENT_PATH}"
+echo "[1] Stažené soubory:  ${home_path}"
 read -p "0/1: " choice;
 
 if [[ $choice == 1 ]]
