@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Program pro lehčí uživatelské zadání stahování do programu ulozto-downloader
-# verze 1.0
+# verze 1.1
+# 02. 07. 2022 Přidána možnost vybrat si cílovou destinaci ke stažení souboru plus počet vláken ke stahování.
 # 27. 11. 2021 marek@vach.cz
 
 # Instalace - v terminálu zadat $PATH
@@ -26,13 +27,25 @@ echo "[0] současný adresář: ${CURRENT_PATH}"
 echo "[1] Stažené soubory:  ${home_path}"
 read -p "0/1: " choice;
 
-if [[ $choice == 1 ]]
+if [[ "$choice" == 1 ]]
 then
    path=$home_path
 else
-   path=$CURRENT_PATH 
+   path=$CURRENT_PATH
+fi
+echo "Soubor bude stažen do složky $path"
+echo ""
+
+read -p "Na kolik částí soubor rozdělit [def. 15]: " parts;
+
+if [[ "$parts" -ge 1 ]] && [[ "$parts" -le 100 ]]
+then
+   :
+else
+   parts=15
+   echo "Nastavena defaultní hodnota: $parts částí"
 fi
 
-printf "${orange}Započítávám stahování souboru z ulož.to do složky $path ${no_color}"
+printf "${orange}Započítávám stahování souboru z ulož.to do složky $path přes $parts vláken. ${no_color}"
 sleep $sleep_time
-ulozto-downloader --parts 15 --output $path --auto-captcha $url 
+ulozto-downloader --parts $parts --output $path --auto-captcha $url
