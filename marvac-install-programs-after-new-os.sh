@@ -98,9 +98,7 @@ do_switch_case() {
 
 			echo "Instalace docker-compose..."
 			sleep $sleep_time
-			# update version time to time, current 2.2.3 https://github.com/docker/compose/releases
-			sudo curl -L https://github.com/docker/compose/releases/download/2.2.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
-			sudo chmod +x /usr/local/bin/docker-compose
+			sudo apt-get install docker-compose-plugin -y
 			docker-compose --version
 
 			echo "Nastavení automatického spuštění a přidání uživatele do skupiny docker"
