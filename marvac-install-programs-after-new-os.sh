@@ -98,7 +98,7 @@ do_switch_case() {
 
 			echo "Instalace docker-compose..."
 			sleep $sleep_time
-			sudo apt-get install docker-compose-plugin -y
+			sudo apt-get install docker-compose -y
 			docker-compose --version
 
 			echo "Nastavení automatického spuštění a přidání uživatele do skupiny docker"
