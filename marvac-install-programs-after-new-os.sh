@@ -2,6 +2,7 @@
 
 # version 1.5 from 21-12-01
 # version 1.6 from 22-01-28 - adding function to set input comma separated
+# version 1.7 from 23-04-18 - adding wsdd for network visibility on windows machines
 # autor marek@vach.cz
 
 # initial variables #
@@ -20,7 +21,8 @@ menu=(
 "11) instalovat net-tools"
 "12) instalovat TeamViewer"
 "13) instalovat ulozto-downloader"
-"14) instalovat yourube-dl")
+"14) instalovat yourube-dl"
+"15) viditelnost ostatním (Windows) počítačům")
 menu+=([100]="100) ukončit skript")
 
 highest_menu_number=$(echo $((${#menu[@]} - 2))) # count of array minus 0 and 100
@@ -202,6 +204,22 @@ do_switch_case() {
 
 		;;
 
+		15)
+			cd ~/Stažené
+			wget https://github.com/christgau/wsdd/archive/master.zip
+			unzip master.zip
+			sudo mv wsdd-master/src/wsdd.py wsdd-master/src/wsdd
+			sudo cp wsdd-master/src/wsdd /usr/bin
+			sudo cp wsdd-master/etc/systemd/wsdd.service /etc/systemd/system
+			sudo touch /etc/default/wsdd
+
+			sudo systemctl daemon-reload
+			sudo systemctl start wsdd
+			sudo systemctl enable wsdd
+			rm ~/Stažené/master.zip
+			sudo systemctl status wsdd
+		;;
+
 		100)
 			exit	
 		;;
@@ -213,6 +231,7 @@ do_switch_case() {
 	((choice++))
 	sleep $sleep_time
 }
+
 ######
 
 # Main function - user input and program logic #
