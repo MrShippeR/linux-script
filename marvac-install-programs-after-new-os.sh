@@ -22,7 +22,8 @@ menu=(
 "11) instalovat net-tools"
 "12) instalovat TeamViewer"
 "13) instalovat VLC player"
-"14) viditelnost ostatním (Windows) počítačům")
+"14) viditelnost ostatním (Windows) počítačům"
+"15) vytvořit zástupce bash-skripty")
 menu+=([100]="100) ukončit skript")
 
 highest_menu_number=$(echo $((${#menu[@]} - 2))) # count of array minus 0 and 100
@@ -175,6 +176,12 @@ do_switch_case() {
 			printf "${orange}Příkaz zadávat ve tvaru: youtube-dl [OPTIONS] URL [URL...]${no_color}"
 
 		;;
+
+                15)
+                       echo "Vytvářím zástupce v domovské složce pro bash-skripty"
+                       ln -s /usr/local/bin/ ~/bash-skripty
+
+                ;;
 
 		100)
 			exit
