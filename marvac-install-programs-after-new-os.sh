@@ -3,6 +3,7 @@
 # version 1.5 from 21-12-01
 # version 1.6 from 22-01-28 - adding function to set input comma separated
 # version 1.7 from 23-04-18 - adding wsdd for network visibility on windows machines
+# version 1.8 from 24.05.30 - adding vlc and changing apt-update to run only once during loop; adding -y for apt-install; remove ulozto-downloader and yourube-dl
 # autor marek@vach.cz
 
 # initial variables #
@@ -20,9 +21,8 @@ menu=(
 "10) instalovat KolourPaint"
 "11) instalovat net-tools"
 "12) instalovat TeamViewer"
-"13) instalovat ulozto-downloader"
-"14) instalovat yourube-dl"
-"15) viditelnost ostatním (Windows) počítačům")
+"13) instalovat VLC player"
+"14) viditelnost ostatním (Windows) počítačům")
 menu+=([100]="100) ukončit skript")
 
 highest_menu_number=$(echo $((${#menu[@]} - 2))) # count of array minus 0 and 100
@@ -35,10 +35,6 @@ sleep_time=0.8
 
 # define functions and install instructions #
 do_switch_case() {
-	printf "${orange}Aktualizace repozitářů $choice:${no_color}"
-	sudo snap refresh
-	sudo apt-get update
-	
 	printf "${orange}Započínám vykonávání úkoly $choice:${no_color}"
 	sleep $sleep_time
 	case $choice in
@@ -54,19 +50,19 @@ do_switch_case() {
 		;;
 
 		3)
-			sudo apt install apt-transport-https curl
+			sudo apt install -y apt-transport-https curl
 			sudo curl -fsSLo /usr/share/keyrings/brave-browser-archive-keyring.gpg https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg
 			echo "deb [signed-by=/usr/share/keyrings/brave-browser-archive-keyring.gpg arch=amd64] https://brave-browser-apt-release.s3.brave.com/ stable main"|sudo tee /etc/apt/sources.list.d/brave-browser-release.list
-			sudo apt update
-			sudo apt install brave-browser
+			sudo apt update -y
+			sudo apt install -y brave-browser
 		;;
 
 		4)	
-			sudo apt-get install seafile-gui -y	
+			sudo apt-get install -y seafile-gui
 		;;
 
 		5)
-			sudo apt-get install screen -y
+			sudo apt-get install -y screen
 		;;
 
 		6)
@@ -81,7 +77,7 @@ do_switch_case() {
 			echo "Instalace potřebných podprogramů a přidání repozitáře..."
 			sleep $sleep_time
 			
-			sudo apt-get install \
+			sudo apt-get install -y \
     				ca-certificates \
     				curl \
     				gnupg \
@@ -94,13 +90,13 @@ do_switch_case() {
 
 			echo "Instalace docker engine..."
 			sleep $sleep_time
-			sudo apt-get update
-			sudo apt-get install docker-ce docker-ce-cli containerd.io -y
+			sudo apt-get update -y
+			sudo apt-get install -y docker-ce docker-ce-cli containerd.io
 			docker version
 
 			echo "Instalace docker-compose..."
 			sleep $sleep_time
-			sudo apt-get install docker-compose -y
+			sudo apt-get install -y docker-compose
 			docker compose version
 
 			echo "Nastavení automatického spuštění a přidání uživatele do skupiny docker"
@@ -142,7 +138,7 @@ do_switch_case() {
 		;;
 
 		11)
-			sudo apt-get install net-tools -y
+			sudo apt-get install -y net-tools
 			echo ""
 			echo "Otestování nástroje PING:"
 			ping -c 2 google.com
@@ -157,34 +153,10 @@ do_switch_case() {
 		;;
 		
 		13)
-			cd ~/Stažené
-			echo "Instaluji balíky potřebné pro běh aplikace ulozto-downloader: python3-pip, tor, python3-tflite-runtime"
-			sleep $sleep_time
-			
-			sudo apt install python3-pip -y
-			sudo apt install tor -y
-			
-			echo "deb https://packages.cloud.google.com/apt coral-edgetpu-stable main" | sudo tee /etc/apt/sources.list.d/coral-edgetpu.list
-			curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
-			sudo apt-get update
-			sudo apt-get install python3-tflite-runtime -y
-			sudo apt-get install python3-tk -y
-			
-			echo "Instaluji ulozto-downloader"
-			sleep $sleep_time
-			sudo pip3 install --upgrade ulozto-downloader
+			echo "Instaluji VLC player"
+                        sleep $sleep_time
 
-			echo "Instaluji zjednodušení pro zadávání příkazu do Terminálu"
-			sleep $sleep_time
-			cd "/usr/local/bin/"
-			sudo wget https://raw.githubusercontent.com/MrShippeR/linux-script/main/ulozto.sh
-			sudo mv ulozto.sh ulozto
-			sudo chmod a+rx ulozto
-			sudo chown root:root ulozto
-			
-			# printf "${orange}Příklad příkazu pro stahování: ulozto-downloader --auto-captcha --parts 15 'https://ulozto.cz/file/TKvQVDFBEhtL/debian-9-6-0-amd64-netinst-iso'${no_color}"
-			echo
-			printf "${orange}Příklad příkazu pro stahování: ulozto 'https://ulozto.cz/file/TKvQVDFBEhtL/debian-9-6-0-amd64-netinst-iso'${no_color}"
+                        sudo apt install -y vlc
 		;;
 
 		14)
@@ -197,31 +169,15 @@ do_switch_case() {
 			echo
 			echo "Instaluji závislosti - Python..."
 			sleep $sleep_time
-			sudo apt install python3 -y
-			sudo apt install python-is-python3 -y
+			sudo apt install -y python3
+			sudo apt install -y python-is-python3
 
 			printf "${orange}Příkaz zadávat ve tvaru: youtube-dl [OPTIONS] URL [URL...]${no_color}"
 
 		;;
 
-		15)
-			cd ~/Stažené
-			wget https://github.com/christgau/wsdd/archive/master.zip
-			unzip master.zip
-			sudo mv wsdd-master/src/wsdd.py wsdd-master/src/wsdd
-			sudo cp wsdd-master/src/wsdd /usr/bin
-			sudo cp wsdd-master/etc/systemd/wsdd.service /etc/systemd/system
-			sudo touch /etc/default/wsdd
-
-			sudo systemctl daemon-reload
-			sudo systemctl start wsdd
-			sudo systemctl enable wsdd
-			rm ~/Stažené/master.zip
-			sudo systemctl status wsdd
-		;;
-
 		100)
-			exit	
+			exit
 		;;
 
 	esac
@@ -237,7 +193,7 @@ do_switch_case() {
 # Main function - user input and program logic #
 
 echo ""
-echo "Skript pro rychlou instalaci 2021 Marek@Vach.cz v1.6"
+echo "Skript pro rychlou instalaci 2021 Marek@Vach.cz v1.8"
 echo ""
 printf '%s\n' "${menu[@]}"
 echo ""
@@ -253,6 +209,10 @@ else
   choices=($choice)
   echo "Byla zvolena úloha:"
 fi
+
+printf "${orange}Aktualizace repozitářů $choice:${no_color}"
+sudo snap refresh
+sudo apt-get update -y
 
 # foreach function to print choices on script start execution
 for choice in "${choices[@]}"
