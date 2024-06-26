@@ -4,6 +4,7 @@
 # version 1.6 from 22-01-28 - adding function to set input comma separated
 # version 1.7 from 23-04-18 - adding wsdd for network visibility on windows machines
 # version 1.8 from 24.05.30 - adding vlc and changing apt-update to run only once during loop; adding -y for apt-install; remove ulozto-downloader and yourube-dl
+# version 1.9 from 24-06-20 - adding programs for server installation
 # autor marek@vach.cz
 
 # initial variables #
@@ -16,14 +17,20 @@ menu=(
 "5) instalovat Screen"
 "6) instalovat Discord"
 "7) instalovat Signal"
-"8) instalovat Docker a Docker-Container"
-"9) instalovat driver tiskárny Samsung M2020"
-"10) instalovat KolourPaint"
-"11) instalovat net-tools"
-"12) instalovat TeamViewer"
+"8) instalovat Docker a Docker-Compose"
+"9) instalovat Podman a Podman-Compose"
+"10) instalovat driver tiskárny Samsung M2020"
+"11) instalovat KolourPaint"
+"12) instalovat net-tools"
 "13) instalovat VLC player"
 "14) viditelnost ostatním (Windows) počítačům"
-"15) vytvořit zástupce bash-skripty")
+"15) vytvořit zástupce bash-skripty"
+"16) instalovat Cockpit"
+"17) nastaví UFW defaultní pravidla, vypne IPV6, povolí rozsah LAN sítě"
+"18) instalovat unattended-upgrades a vyvolat konfiguraci programu"
+"19) instalovat snapshot zálohu systému Timeshift"
+"20) upravit nastavení sítě v /etc/sysctl.conf , set unpriviliged port 80 and enable port forwarding"
+"21) instalovat Crowdsec pro Ubuntu 22.04 LTS")
 menu+=([100]="100) ukončit skript")
 
 highest_menu_number=$(echo $((${#menu[@]} - 2))) # count of array minus 0 and 100
@@ -110,7 +117,36 @@ do_switch_case() {
 			sudo systemctl enable containerd.service
 		;;
 
-		9)			
+                9)
+                        sudo apt-get install -y podman
+                        sudo apt-get install -y podman-docker
+                        sudo systemctl enable podman
+                        podman --version
+
+                        echo "Instaluji Python3 pro stažení dodatečného pluginu podman-compose"
+                        sudo apt-get install -y python3
+                        sudo apt-get install -y python3-pip
+
+                        pip3 install https://github.com/containers/podman-compose/archive/main.tar.gz
+                        echo -e "\nexport PATH=\$PATH:\$HOME/.local/bin" >> ~/.bashrc
+
+                        # https://bugs.launchpad.net/ubuntu/+source/libpod/+bug/2024394
+                        echo "Opravuji bug plugin bridge does not support config version 1.0.0 ..."
+                        sleep 1
+                        sudo mkdir -p /tmp/podman-installation
+                        sudo chown -R 1000:1000 /tmp/podman-instalation
+                        cd /etc/podman-instalation
+                        curl -O http://archive.ubuntu.com/ubuntu/pool/universe/g/golang-github-containernetworking-plugins/containernetworking-plugins_1.1.1+ds1-3build1_amd64.deb
+                        sudo dpkg -i containernetworking-plugins_1.1.1+ds1-3build1_amd64.deb
+
+                        echo "Vytvářím síť 'optiplex' pro Nginx-proxy-manager"
+                        podman network create optiplex
+
+                        echo "Nastavuji rootless přístup k podman"
+                        sudo apt-get install -y slirp4netns
+                ;;
+
+		10)			
 			file_name=uld_V1.00.39_01.17.tar.gz
 			cd ~/Stažené	
 			
@@ -134,23 +170,17 @@ do_switch_case() {
 			sudo ./install.sh
 		;;
 
-		10)
+		11)
 			sudo snap install kolourpaint
 		;;
 
-		11)
+		12)
 			sudo apt-get install -y net-tools
 			echo ""
 			echo "Otestování nástroje PING:"
 			ping -c 2 google.com
 			echo ""
 			ping -c 2 vach.cz
-		;;
-
-		12)
-			cd ~/Stažené
-			wget https://download.teamviewer.com/download/linux/teamviewer_amd64.deb
-			sudo dpkg -i teamviewer_amd64.deb		
 		;;
 		
 		13)
@@ -183,6 +213,101 @@ do_switch_case() {
 
                 ;;
 
+                16)
+                       sudo mkdir -p /tmp/cockpit-files-install
+                       sudo chown -R 1000:1000 /tmp/cockpit-files-install
+                       cd /tmp/cockpit-files-install
+
+                       sudo apt-get install -y cockpit cockpit-storaged cockpit-networkmanager cockpit-packagekit cockpit-machines cockpit-podman cockpit-sosreport
+
+                       curl -LO https://github.com/45Drives/cockpit-file-sharing/releases/download/v3.3.7/cockpit-file-sharing_3.3.7-1focal_all.deb
+                       sudo apt-get install -y ./cockpit-file-sharing_3.3.7-1focal_all.deb
+
+                       sudo apt-get install -y gettext nodejs npm make
+                       git clone https://github.com/cockpit-project/cockpit-files.git
+                       cd cockpit-files
+                       sudo make
+
+                       wget https://github.com/ocristopfer/cockpit-sensors/releases/latest/download/cockpit-sensors.tar.xz && \
+                       tar -xf cockpit-sensors.tar.xz cockpit-sensors/dist && \
+                       sudo mv cockpit-sensors/dist /usr/share/cockpit/sensors && \
+                       rm -r cockpit-sensors && \
+                       rm cockpit-sensors.tar.xz
+
+                       sudo systemctl enable --now cockpit.socket
+                       echo "Cockpit je dostupný na adrese https://localhost:9090"
+                ;;
+
+                17)
+                       echo
+                       sudo sed -i 's/^IPV6=yes/IPV6=no/' /etc/default/ufw && echo "Změna v konfiguračním souboru /etc/defaults/ufw úspěšná." || echo "Parametr IPV6 v /etc/defaults/ufw nenalezen, ponecháno beze změny."
+                       echo
+                       sudo ufw reload
+                       sleep 1
+
+                       sudo ufw default deny incoming
+                       sudo ufw default allow outgoing
+                       sudo ufw allow from 192.168.0.0/24 comment "LAN allowed"
+                       sudo ufw enable
+                       sudo ufw status numbered
+                ;;
+
+                18)
+                       sudo apt-get install -y unattended-upgrades
+                       sudo dpkg-reconfigure -plow unattended-upgrades
+                ;;
+
+                19)
+                       sudo add-apt-repository -y ppa:teejee2008/ppa
+                       sudo apt-get update
+                       sudo apt-get install -y timeshift
+                ;;
+
+                20)
+                       sudo sh -c 'echo "" >> /etc/sysctl.conf && echo "net.ipv4.ip_unprivileged_port_start=80" >> /etc/sysctl.conf'
+                       sudo sed -i '/^#net.ipv4.ip_forward=1/s/^#//' /etc/sysctl.conf
+                       # sudo sysctl --system
+                       sudo sysctl -p
+                ;;
+
+                21)
+                       sudo apt-get install -y debian-archive-keyring
+                       sudo apt-get install -y curl gnupg apt-transport-https
+
+                       sudo mkdir -p /etc/apt/keyrings/
+                       wget -qO- https://packagecloud.io/crowdsec/crowdsec/gpgkey | gpg --dearmor | sudo tee /etc/apt/keyrings/crowdsec_crowdsec-archive-keyring.gpg >/dev/null
+
+                       sudo touch /etc/apt/sources.list.d/crowdsec_crowdsec.list
+                       sudo sh -c 'echo "deb [signed-by=/etc/apt/keyrings/crowdsec_crowdsec-archive-keyring.gpg] https://packagecloud.io/crowdsec/crowdsec/ubuntu jammy main" >> /etc/apt/sources.list.d/crowdsec_crowdsec.list'
+                       sudo sh -c 'echo "deb-src [signed-by=/etc/apt/keyrings/crowdsec_crowdsec-archive-keyring.gpg] https://packagecloud.io/crowdsec/crowdsec/ubuntu jammy main"  >> /etc/apt/sources.list.d/crowdsec_crowdsec.list'
+
+                       sudo apt-get update
+                       sudo apt-get install -y crowdsec
+                       sudo apt-get install -y crowdsec-firewall-bouncer-iptables # You need to deploy a bouncer to apply decisions.
+
+                       sudo systemctl status crowdsec
+                       sudo systemctl enable crowdsec
+
+                       sudo cscli collections install crowdsecurity/iptables
+
+                       sudo cscli collections install crowdsecurity/nginx-proxy-manager
+                       # následující příkaz musí být odřádkovaný formátem, mezerami pro použití v souboru .yml
+                       sudo tee -a /etc/crowdsec/acquis.yaml <<EOF
+# manually added nginx-proxy-manager
+filenames:
+  - /home/shipper/podman/nginx-proxy-manager/data/logs/*.log
+labels:
+  type: nginx-proxy-manager
+---
+EOF
+
+                       sudo systemctl reload crowdsec
+                       echo
+                       echo "Nezapomenout!!! Enroll security engine with https://app.crowdsec.net/security-engines"
+                       sleep 3
+                       echo
+                ;;
+
 		100)
 			exit
 		;;
@@ -200,7 +325,7 @@ do_switch_case() {
 # Main function - user input and program logic #
 
 echo ""
-echo "Skript pro rychlou instalaci 2021 Marek@Vach.cz v1.8"
+echo "Skript pro rychlou instalaci 2021 Marek@Vach.cz v1.9"
 echo ""
 printf '%s\n' "${menu[@]}"
 echo ""
