@@ -30,7 +30,9 @@ menu=(
 "18) instalovat unattended-upgrades a vyvolat konfiguraci programu"
 "19) instalovat snapshot zálohu systému Timeshift"
 "20) upravit nastavení sítě v /etc/sysctl.conf , set unpriviliged port 80 and enable port forwarding"
-"21) instalovat Crowdsec pro Ubuntu 22.04 LTS")
+"21) instalovat Crowdsec pro Ubuntu 22.04 LTS"
+"22) Přepnout z Wayland na X11"
+"23) instalovat NPM z nodejs.org")
 menu+=([100]="100) ukončit skript")
 
 highest_menu_number=$(echo $((${#menu[@]} - 2))) # count of array minus 0 and 100
@@ -290,6 +292,22 @@ do_switch_case() {
 
                        sudo cscli collections install crowdsecurity/iptables
 
+                       sudo cscli parsers install crowdsecurity/whitelists
+                       sudo mkdir -p /etc/crowdsec/parsers/s02-enrich
+                       # následující příkaz musí být odřádkovaný formátem, mezerami pro použití v souboru .yml
+                       sudo tee -a /etc/crowdsec/parsers/s02-enrich/mywhitelist.yaml <<EOF
+name: my/whitelists
+description: "MyWhitelist"
+whitelist:
+  reason: "Home IP range whitelisted"
+  ip:
+    - "172.18.0.10"      # Wireguard VPN
+    - "94.113.162.202"   # Brno IP
+  cidr:
+    - "192.168.0.0/24"
+EOF
+
+
                        sudo cscli collections install crowdsecurity/nginx-proxy-manager
                        # následující příkaz musí být odřádkovaný formátem, mezerami pro použití v souboru .yml
                        sudo tee -a /etc/crowdsec/acquis.yaml <<EOF
@@ -306,6 +324,31 @@ EOF
                        echo "Nezapomenout!!! Enroll security engine with https://app.crowdsec.net/security-engines"
                        sleep 3
                        echo
+                ;;
+
+                22)
+                       sudo sed -i -e '/^#WaylandEnable=false/s/^#//' /etc/gdm3/custom.conf && grep -q '^WaylandEnable=false' /etc/gdm3/custom.conf && echo "Řádek v konfiguráku nalezen. Pro aplikování změny je nutno restartovat počítač." || echo "Chyba. Textový řetězec 'WaylandEnable=false' v souboru /etc/gdm3/custom.conf nebyl nalezen."
+                ;;
+
+                23)
+                       echo "Odinstalovávám předinstalované nodejs a npm."
+                       sleep 3
+                       sudo apt-get remove -y nodejs npm
+
+                       sudo apt-get install -y python3 g++ make python3-pip
+                       sudo apt-get install -y ca-certificates curl gnupg
+                       sudo mkdir -p /etc/apt/keyrings
+                       curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+
+                       NODE_MAJOR=20
+                       echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
+
+                       sudo apt-get update
+                       sudo apt-get install -y nodejs
+                       sudo apt-get install -y build-essential
+
+                       node --version
+                       npm --version
                 ;;
 
 		100)
