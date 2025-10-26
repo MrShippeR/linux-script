@@ -54,6 +54,7 @@ do_switch_case() {
 			echo "Instaluji Wireguard GUI..."
 			mkdir -p /tmp/wireguird/
 			cd /tmp/wireguird/
+			sudo apt-get install -y wireguard-tools
 			wget https://github.com/UnnoTed/wireguird/releases/download/v1.1.0/wireguird_amd64.deb
 			sudo dpkg -i wireguird_amd64.deb
 
