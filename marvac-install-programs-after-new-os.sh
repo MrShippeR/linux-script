@@ -5,12 +5,13 @@
 # version 1.7 from 23-04-18 - adding wsdd for network visibility on windows machines
 # version 1.8 from 24.05.30 - adding vlc and changing apt-update to run only once during loop; adding -y for apt-install; remove ulozto-downloader and yourube-dl
 # version 1.9 from 24-06-20 - adding programs for server installation
+# version 2.0 from 25-10-26 - adding wireguird, adding automatization of printer installer
 # autor marek@vach.cz
 
 # initial variables #
 menu=(
 "0) přeji si udělat všechny následující kroky"
-"1) instalovat gnome-tweaks pro nastavení klikání pravým tlačítkem touchpadu"
+"1) Instalovat Wireguird"
 "2) sjednotit zápis času pro skoky mezi Windows a Linux"
 "3) instalovat prohlížeč Brave"
 "4) instalovat Seafile client"
@@ -45,14 +46,18 @@ sleep_time=0.8
 
 # define functions and install instructions #
 do_switch_case() {
-	printf "${orange}Započínám vykonávání úkoly $choice:${no_color}"
+	printf "${orange}Započínám vykonávání úlohy $choice:${no_color}"
 	sleep $sleep_time
 	case $choice in
 
 		1)
-			sudo apt-get install gnome-tweaks -y
-			echo "Otevírám gnome-tweaks v samostatném procesu."
- 		 	gnome-tweaks &  # & starts separate process
+			echo "Instaluji Wireguard GUI..."
+			mkdir -p /tmp/wireguird/
+			cd /tmp/wireguird/
+			wget https://github.com/UnnoTed/wireguird/releases/download/v1.1.0/wireguird_amd64.deb
+			sudo dpkg -i wireguird_amd64.deb
+
+			sudo rm -r /tmp/wireguird/
 		;;
 
 		2)		
@@ -72,19 +77,22 @@ do_switch_case() {
 		;;
 
 		5)
+			echo "Instaluji Screen"
 			sudo apt-get install -y screen
 		;;
 
 		6)
+			echo "Instaluji Discord..."
 			sudo snap install discord
 		;;
 
 		7)
+			echo "Instaluji Signal..."
 			sudo snap install signal-desktop
 		;;
 
 		8)
-			echo "Instalace potřebných podprogramů a přidání repozitáře..."
+			echo "Instalace Docker potřebných podprogramů a přidání repozitáře..."
 			sleep $sleep_time
 			
 			sudo apt-get install -y \
@@ -120,6 +128,7 @@ do_switch_case() {
 		;;
 
                 9)
+			echo "Instaluji Podman kontejnery..."
                         sudo apt-get install -y podman
                         sudo apt-get install -y podman-docker
                         sudo systemctl enable podman
@@ -149,6 +158,7 @@ do_switch_case() {
                 ;;
 
 		10)			
+			echo "Instaluji ovladač tiskárny Samsung M2020"
 			file_name=uld_V1.00.39_01.17.tar.gz
 			cd ~/Stažené	
 			
@@ -166,17 +176,54 @@ do_switch_case() {
 			fi
 
 			cd uld/
-			printf "${red}Zmáčknout Enter, Q, pro přeskočení skrolování. ${no_color}"
+
+			echo "Vytvářím podskript autofill-printer-installator.sh a instaluji podpůrný nástroj Expect"
+			sudo apt install -y expect
+			
+cat << 'EOF' > autofill-printer-installator.sh
+#!/usr/bin/expect -f
+
+# Spusť cílový skript
+spawn ./install.sh
+
+# 1️⃣ Reakce na výzvu k Enteru nebo q
+expect {
+    -re "Press 'Enter' to continue or 'q' and then 'Enter' to quit" {
+        send "\r"       ;# Enter
+        sleep 1
+        send "q\r"      ;# Po 1s odešli q + Enter
+    }
+}
+
+# 2️⃣ Reakce na otázku Do you agree?
+expect {
+    -re "Do you agree.*\[y/n\]" {
+        send "y\r"      ;# y + Enter
+    }
+}
+
+# 3️⃣ Poté pošli n + Enter
+sleep 1
+send "n\r"
+
+# 4️⃣ Čekej na konec programu
+expect eof
+EOF
+
+
+			sudo chmod +x autofill-printer-installator.sh
+			echo "Započínám automatickou instalaci driveru s odpovídačem..."
 			sleep 3
-			echo ""
-			sudo ./install.sh
+			sudo ./autofill-printer-installator.sh 
 		;;
 
 		11)
+			echo "Instaluji kolourpaint..."
 			sudo snap install kolourpaint
 		;;
 
 		12)
+			echo "Instaluji net-tools..."
 			sudo apt-get install -y net-tools
 			echo ""
 			echo "Otestování nástroje PING:"
