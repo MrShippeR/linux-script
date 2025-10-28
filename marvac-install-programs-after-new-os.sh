@@ -33,7 +33,9 @@ menu=(
 "20) upravit nastavení sítě v /etc/sysctl.conf , set unpriviliged port 80 and enable port forwarding"
 "21) instalovat Crowdsec pro Ubuntu 22.04 LTS"
 "22) Přepnout z Wayland na X11"
-"23) instalovat NPM z nodejs.org")
+"23) instalovat NPM z nodejs.org"
+"24) instalovat X2GO server"
+"25) instalovat X2GO client")
 menu+=([100]="100) ukončit skript")
 
 highest_menu_number=$(echo $((${#menu[@]} - 2))) # count of array minus 0 and 100
@@ -398,6 +400,28 @@ EOF
                        node --version
                        npm --version
                 ;;
+
+		24)
+			echo "Započínám instalaci X2GO server pro vzdálenou plochu v jiném sezení na prostředí LXDE..."
+			if ! compgen -G "/etc/apt/sources.list.d/*x2go*" > /dev/null; then
+    				sudo add-apt-repository ppa:x2go/stable
+                                sudo apt-get update
+			fi
+
+			sudo apt-get install -y x2goserver x2goserver-xsession x2golxdebindings
+			echo "X2GO server nainstalován, doinstalovávám desktopové prostředí LXDE..."
+			sudo apt-get install -y lxde
+		;;
+
+		25)
+			echo "Započínám instalaci X2GO client pro připojování se ke vzdálené ploše na základě desktopového prostředí LXDE..."
+                        if ! compgen -G "/etc/apt/sources.list.d/*x2go*" > /dev/null; then
+                                sudo add-apt-repository ppa:x2go/stable
+                                sudo apt-get update
+                        fi
+
+			sudo apt-get install -y x2goclient
+		;;
 
 		100)
 			exit
