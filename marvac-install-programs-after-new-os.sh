@@ -404,7 +404,7 @@ EOF
 		24)
 			echo "Započínám instalaci X2GO server pro vzdálenou plochu v jiném sezení na prostředí LXDE..."
 			if ! compgen -G "/etc/apt/sources.list.d/*x2go*" > /dev/null; then
-    				sudo add-apt-repository ppa:x2go/stable
+    				echo | sudo add-apt-repository ppa:x2go/stable
                                 sudo apt-get update
 			fi
 
@@ -416,7 +416,7 @@ EOF
 		25)
 			echo "Započínám instalaci X2GO client pro připojování se ke vzdálené ploše na základě desktopového prostředí LXDE..."
                         if ! compgen -G "/etc/apt/sources.list.d/*x2go*" > /dev/null; then
-                                sudo add-apt-repository ppa:x2go/stable
+                                echo | sudo add-apt-repository ppa:x2go/stable
                                 sudo apt-get update
                         fi
 
