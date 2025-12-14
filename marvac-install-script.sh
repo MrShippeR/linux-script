@@ -3,13 +3,15 @@ set -Eeuo pipefail
 IFS=$'\n\t'
 
 SCRIPT_NAME="MarVac postinstall OS script"
-SCRIPT_VERSION="1.0"
-SCRIPT_DATE="2025-01-13"
+SCRIPT_VERSION="1.1"
+SCRIPT_DATE="2025-01-15"
 SCRIPT_AUTHOR="marek@vach.cz"
+SYSTEM_USER="shipper"
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 TASKS_DIR="$SCRIPT_DIR/tasks"
 TMP_DIR="$SCRIPT_DIR/tmp"
+DEPS_OK_FILE="$TMP_DIR/.deps_ok"
 LOGFILE="$SCRIPT_DIR/install-script.log"
 
 DRY_RUN=false
@@ -38,7 +40,7 @@ require_root() {
 log() {
 	echo
 	echo "[$(date '+%F %T')] $*" | tee -a "$LOGFILE"
-	sleep 2
+	sleep 1.5
 }
 
 run() {
@@ -83,14 +85,36 @@ apt_install() {
 }
 
 install_dependencies() {
-	apt_once
-	log "Installing utilities used by the script..."
+	# pokud už víme, že závislosti jsou splněny, přeskočíme
+	if [[ -f "$DEPS_OK_FILE" ]]; then
+		log "Podpůrné programy skriptu jsou již nainstalovány, přeskakuji kontrolu."
+		return 0
+	fi
+
+	log "Kontroluji přítomnost podpůrných programů skriptu..."
+
 	local deps=(wget curl ca-certificates gnupg yes expect unzip)
+	local missing=()
+
 	for pkg in "${deps[@]}"; do
 		if ! dpkg -s "$pkg" &>/dev/null; then
-			apt_install "$pkg"
+			log "Missing dependency: $pkg"
+			missing+=("$pkg")
 		fi
 	done
+
+	if [[ ${#missing[@]} -gt 0 ]]; then
+		log "Instaluji chybějící balíčky: ${missing[*]}"
+		apt_once
+		apt_install "${missing[@]}"
+	else
+		log "Žádné chybějící závislosti."
+	fi
+
+	mkdir -p "$TMP_DIR"
+	touch "$DEPS_OK_FILE"
+	chown $SYSTEM_USER:$SYSTEM_USER $DEPS_OK_FILE
+	log "Podpůrné programy nainstalovány. Poznamenávám do souboru $DEPS_OK_FILE"
 }
 
 declare -A TASK_DESC
