@@ -1,5 +1,5 @@
 #!/bin/bash
-# Instalovat ovladač tiskárny Samsung M2020
+# Instalovat ovladač tiskárny Samsung M2020.
 
 PRINTER_FILE_NAME="uld_V1.00.39_01.17.tar.gz"
 

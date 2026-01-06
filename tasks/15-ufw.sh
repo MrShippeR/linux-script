@@ -1,5 +1,5 @@
 #!/bin/bash
-# Nastaví UFW defaultní pravidla a povolí rozsah sítí LAN a VPN
+# Nakonfiguruje UFW defaultní pravidla a povolí rozsah sítí LAN a VPN.
 
 UFW_CONFIG="/etc/default/ufw"
 

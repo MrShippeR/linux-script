@@ -1,5 +1,5 @@
 #!/bin/bash
-# Aktivovat Wake on LAN
+# Aktivovat Wake on LAN.
 NETWORK_INTERFACE="Drátové připojení 1"
 
 log "Zobrazuji info o rozhraní před změnou: $NETWORK_INTERFACE"

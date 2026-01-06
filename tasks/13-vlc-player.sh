@@ -1,4 +1,4 @@
 #!/bin/bash
-# Instalovat VLC přehrávač
+# Instalovat VLC přehrávač.
 
 apt_install vlc

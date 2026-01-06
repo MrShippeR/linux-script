@@ -81,24 +81,24 @@ apt_once() {
 
 apt_install() {
 	apt_once
-	run apt-get install -y --no-install-recommends "$@"
+	run apt-get install -y --no-install-recommends --fix-missing "$@"
 }
 
 install_dependencies() {
 	# pokud už víme, že závislosti jsou splněny, přeskočíme
 	if [[ -f "$DEPS_OK_FILE" ]]; then
-		log "Podpůrné programy skriptu jsou již nainstalovány, přeskakuji kontrolu."
+		# log "Podpůrné programy skriptu jsou již nainstalovány, přeskakuji kontrolu."
 		return 0
 	fi
 
 	log "Kontroluji přítomnost podpůrných programů skriptu..."
 
-	local deps=(wget curl ca-certificates gnupg yes expect unzip)
+	local deps=(wget curl ca-certificates gnupg expect unzip debian-archive-keyring apt-transport-https )
 	local missing=()
 
 	for pkg in "${deps[@]}"; do
 		if ! dpkg -s "$pkg" &>/dev/null; then
-			log "Missing dependency: $pkg"
+			log "Chybějící komponenta: $pkg"
 			missing+=("$pkg")
 		fi
 	done
@@ -108,7 +108,7 @@ install_dependencies() {
 		apt_once
 		apt_install "${missing[@]}"
 	else
-		log "Žádné chybějící závislosti."
+		log "V pořádku. Závislosti jsou nainstalovány."
 	fi
 
 	mkdir -p "$TMP_DIR"
@@ -123,13 +123,13 @@ declare -A TASK_FUNC
 load_tasks() {
 	if [[ -d "$TASKS_DIR" ]]; then
 		chmod +x "$TASKS_DIR"/*.sh
-		log "Všechny subskripty ve složce tasks jsou nyní nastavené jako spustitelné."
+		# log "Všechny subskripty ve složce tasks jsou nyní nastavené jako spustitelné."
 	else
 		log "Chyba: složka tasks neexistuje. Skript končí."
 		exit 1
 	fi
 
-	log "Načítám subskripty z $TASKS_DIR..."
+	# log "Načítám subskripty z $TASKS_DIR..."
 	for file in "$TASKS_DIR"/*.sh; do
 		local base=$(basename "$file")
 		local task_id="${base%%-*}"    # část před prvním "-"

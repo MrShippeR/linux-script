@@ -1,4 +1,4 @@
 #!/bin/bash
-# Instalovat net-tools
+# Instalovat net-tools.
 
 apt_install net-tools

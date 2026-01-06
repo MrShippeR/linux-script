@@ -1,4 +1,4 @@
 #!/bin/bash
-# Instalovat Kolourpaint - malování
+# Instalovat Kolourpaint - základní malování.
 
 snap install kolourpaint
