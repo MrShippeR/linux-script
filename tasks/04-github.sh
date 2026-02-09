@@ -8,7 +8,7 @@ log "Testuji SSH spojení s GitHubem..."
 # Použijeme expect pro automatické 'yes' při první autentizaci
 expect <<'EOF'
 set timeout 20
-spawn ssh -T git@github.com
+spawn sudo -i -u shipper ssh -T git@github.com
 
 expect {
     "Are you sure you want to continue connecting (yes/no)?" {
