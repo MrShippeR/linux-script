@@ -3,8 +3,8 @@ set -Eeuo pipefail
 IFS=$'\n\t'
 
 SCRIPT_NAME="MarVac postinstall OS script"
-SCRIPT_VERSION="1.1"
-SCRIPT_DATE="2025-01-15"
+SCRIPT_VERSION="1.2"
+SCRIPT_DATE="2025-03-04"
 SCRIPT_AUTHOR="marek@vach.cz"
 SYSTEM_USER="shipper"
 

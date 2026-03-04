@@ -36,6 +36,15 @@ cscli collections install LePresidente/jellyfin
 log "Doinstalovávám firewall bouncer..."
 apt_install crowdsec-firewall-bouncer-iptables
 
+log "Vytvářím whitelist..."
+cscli allowlists create my_whitelist -d "Whitelist for my IPs"
+cscli allowlists add my_whitelist 85.207.119.6 -d "my_WAN"
+cscli allowlists add my_whitelist 192.168.0.1/24 -d "my_LAN"
+cscli allowlists add my_whitelist 10.0.0.1/24 -d "my_WireGuard_Turris"
+cscli allowlists add my_whitelist 109.164.54.238 -d "Chaos_IP"
+# cscli allowlists inspect my_whitelist
+
+log "Kontroluji správnost syntaxe a provádím restart Crowdsec..."
 crowdsec -t && systemctl restart crowdsec
 
 log "Varování - je nutno nastavit cesty k logům, které se mají skenovat přes krok 18) ve skriptu."

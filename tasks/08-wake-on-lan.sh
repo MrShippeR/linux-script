@@ -1,6 +1,6 @@
 #!/bin/bash
 # Aktivovat Wake on LAN.
-NETWORK_INTERFACE="Drátové připojení 1"
+NETWORK_INTERFACE="netplan-enp0s31f6"
 
 log "Zobrazuji info o rozhraní před změnou: $NETWORK_INTERFACE"
 nmcli connection show $NETWORK_INTERFACE | grep 802-3-ethernet.wake-on-lan:
