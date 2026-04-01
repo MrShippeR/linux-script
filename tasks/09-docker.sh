@@ -16,7 +16,7 @@ docker version
 sleep 3
 
 log "Instalace docker-compose..."
-apt_install docker-compose
+apt_install docker-compose-plugin
 docker compose version
 sleep 3
 
