@@ -1,6 +1,6 @@
 #!/bin/bash
 # Instalovat Arduino IDE 2.3.6
-ARDUINO_DIR="/home/SYSTEM_USER/Arduino"
+ARDUINO_DIR="/home/shipper/Arduino"
 
 expect <<'EOF'
 spawn add-apt-repository universe
